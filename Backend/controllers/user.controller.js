@@ -34,7 +34,7 @@ const registerUser = async (req, res) => {
     });
     if (isUserCreated)
       return res.status(200).json({
-        message: "user created succesfully",
+        message: "user created succesfull",
         error: false,
         success: true,
         data: isUserCreated,
