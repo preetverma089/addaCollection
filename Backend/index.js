@@ -6,6 +6,7 @@ const cookie_parser = require("cookie-parser");
 const morgan = require("morgan");
 const helmet = require("helmet");
 const db = require("./config/db");
+const userRoutes = require("./routes/user.routes");
 dotenv.config();
 
 app.use(
@@ -30,6 +31,8 @@ app.get("/", (req, res) => {
     message: "Server is working",
   });
 });
+app.use("/api/v1/user", userRoutes);
+
 app.listen(PORT, () => {
   console.log(`server is started at port${PORT}`);
 });
