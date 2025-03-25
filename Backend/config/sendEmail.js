@@ -1,4 +1,4 @@
-import { Resend } from "resend";
+const { Resend } = require("resend");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -9,6 +9,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async ({ sendTo, subject, html }) => {
   try {
+    console.log("html", html);
     const { data, error } = await resend.emails.send({
       from: "addaCollection <onboarding@resend.dev>",
       to: sendTo,
@@ -24,4 +25,4 @@ const sendEmail = async ({ sendTo, subject, html }) => {
   }
 };
 
-export default sendEmail;
+module.exports = { sendEmail };
