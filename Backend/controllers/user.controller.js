@@ -2,9 +2,9 @@ const UserModel = require("../models/user.model");
 const bcrypt = require("bcrypt");
 const config = require("../config/sendEmail");
 const utils = require("../utils/verifyEmailTemplate");
-const jwt = require("jsonwebtoken");
 const generateToken = require("../utils/generateToken");
 const generateRefreshToken = require("../utils/generateRefreshToken");
+const { uploadImage } = require("../utils/uploadImage.cloudinary");
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -148,7 +148,7 @@ const logoutUser = async (req, res) => {
   try {
     const cookiesOption = {
       httpOnly: true,
-      secure: true,
+      secure: false,
       sameSite: "None",
     };
     res.clearCookie("accessToken", cookiesOption);
@@ -167,4 +167,42 @@ const logoutUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, verifyEmail, loginUser, logoutUser };
+const uploadUserAvatar = async (req, res) => {
+  try {
+    const image = req.file; // coming from multer middle ware
+    const userId = req.userId; // coming from auth middleware
+    if (!image)
+      return res
+        .status(401)
+        .json({ message: "file not provided", error: true, success: false });
+    const upload = await uploadImage(image);
+    if (upload) {
+      const updateUser = await UserModel.findByIdAndUpdate(userId, {
+        avatar: upload?.url,
+      });
+      console.log(updateUser);
+      if (!updateUser)
+        return res
+          .status(401)
+          .json({ message: "image not updated", error: true, success: false });
+      return res.status(200).json({
+        message: "Image uploaded succesfully",
+        error: false,
+        success: true,
+        data: upload,
+        User: updateUser,
+      });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: error.message || error, error: true, success: false });
+  }
+};
+module.exports = {
+  registerUser,
+  verifyEmail,
+  loginUser,
+  logoutUser,
+  uploadUserAvatar,
+};
